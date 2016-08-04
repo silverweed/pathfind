@@ -1,0 +1,11 @@
+name: pathfind
+version: 0.1.0
+
+authors:
+  - silverweed <silverweed1991@gmail.com>
+
+license: MIT
+
+dependencies:
+  crsfml:
+    github: blaxpirit/crsfml
