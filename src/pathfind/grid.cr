@@ -8,6 +8,7 @@ alias Point = Tuple(UInt32, UInt32)
 
 class Grid
 	getter rows, cols
+	setter tiles
 	property path
 
 	def initialize(@rows : UInt32, @cols : UInt32)
@@ -34,6 +35,9 @@ class Grid
 	
 	def set(x, y, v)
 		@tiles[y * @cols + x] = v
+	rescue IndexError
+		raise "Out of bounds: x = #{x} / #{@cols}, y = #{y} / #{@rows};" +
+			"\ny * cols + x = #{y * @cols + x} / #{@tiles.size}"
 	end
 
 	def draw(window, states)
@@ -124,7 +128,11 @@ class Grid
 	end
 
 	private def cost(a, b)
-		tile(*b) - tile(*a)
+		ca = tile(*a)
+		ca = 9999 if ca == 0
+		cb = tile(*b)
+		cb = 9999 if cb == 0
+		cb - ca
 	end
 	
 	private def pathable(tile)
@@ -181,11 +189,11 @@ class Grid
 		cost_so_far[start] = 0
 
 		while !frontier.empty?
-			current = frontier.pop.value
+			current = frontier.shift.value
 			break if current == goal
 			log "current = #{current}"
 			neighbors(*current).each do |nxt|
-				new_cost = cost_so_far[current]# + cost(current, nxt)
+				new_cost = cost_so_far[current] + cost(current, nxt)
 				next if cost_so_far.has_key?(nxt) && new_cost >= cost_so_far[nxt]
 				log "next = #{nxt}"
 				cost_so_far[nxt] = new_cost

@@ -6,6 +6,25 @@ require "./pathfind/utils"
 
 include Pathfind
 
+TILES = [
+	1,1,1,1,1,1,200,1,1,1,1,1,1,1,1,
+	1,1,7,7,7,1,1,200,1,1,1,1,1,1,1,
+	1,7,10,10,1,1,1,1,1,1,1,1,1,1,1,
+	1,7,10,10,1,1,3,3,6,6,6,3,1,1,1,
+	1,4,7,7,7,3,3,6,8,8,9,6,1,1,1,
+	1,1,4,1,1,3,6,6,9,9,9,6,1,1,1,
+	1,1,1,1,1,3,36,49,49,112,9,6,1,1,1,
+	30,1,1,1,1,3,36,49,115,115,9,6,1,1,1,
+	50,1,1,1,1,3,36,49,0,0,9,6,6,1,100,
+	1,1,100,1,1,3,36,49,0,0,115,9,6,1,1,
+	1,1,100,1,1,3,36,49,0,0,115,9,6,1,1,
+	1,1,100,1,1,3,6,9,9,9,9,6,3,1,1,
+	1,1,1,1,1,3,3,6,6,6,6,6,3,1,1,
+	1,1,1,1,1,1,3,3,3,3,3,3,3,1,1,
+	1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,
+]
+
+
 def reconstruct(came_from, start, goal)
 	current = goal
 	path = [current]
@@ -24,7 +43,12 @@ end
 
 def random_pathfind(grid)
 	$start, $goal = random_point(grid), random_point(grid)
-	grid.clear.fill
+	grid.clear
+	if grid.rows == 15 && grid.cols == 15
+		grid.tiles = TILES.clone
+	else
+		grid.fill
+	end
 	grid.set(*$start, 1)
 	grid.set(*$goal, 1)
 	recalc_pathfind(grid)

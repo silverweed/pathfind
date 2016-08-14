@@ -28,6 +28,12 @@ class PriorityQueue(T)
 		@elements.delete_at(last_element_index)
 	end
 
+	def shift
+		el = @elements.shift
+		@elements.sort!
+		el
+	end
+
 	def empty?
 		@elements.empty?
 	end
