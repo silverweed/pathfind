@@ -55,6 +55,7 @@ def random_pathfind(grid)
 end
 
 def recalc_pathfind(grid)
+	STDERR.puts "Using algorithm: #{$algo}"
 	grid.path = reconstruct grid.pathfind($start, $goal, $algo), $start, $goal
 end
 
@@ -65,7 +66,9 @@ cols = 15_u32
 algorithms = [
 	"breadth_first",
 	"early_exit_breadth_first",
-	"dijkstra"
+	"dijkstra",
+	"greedy_best_first",
+	"a_star"
 ]
 $algo : String = algorithms[-1]
 
@@ -104,6 +107,9 @@ window = SF::RenderWindow.new(
 	"Pathfind test")
 
 
+font = SF::Font.from_file("Roboto-Regular.ttf")
+algo_text = SF::Text.new($algo, font, 14)
+algo_text.color = SF::Color::Black unless CONF[:show_weights]
 random_pathfind grid
 
 while window.open?
@@ -117,6 +123,7 @@ while window.open?
 				random_pathfind grid
 			when SF::Keyboard::A
 				$algo = algorithms[(algorithms.index($algo) as Int + 1) % algorithms.size]
+				algo_text.string = $algo
 				recalc_pathfind grid
 			end
 		end
@@ -124,5 +131,6 @@ while window.open?
 
 	window.clear
 	window.draw grid
+	window.draw algo_text
 	window.display
 end

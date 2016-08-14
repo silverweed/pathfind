@@ -105,6 +105,10 @@ class Grid
 			pathfind_early_exit_breadth_first(start, goal)
 		when "dijkstra"
 			pathfind_dijkstra(start, goal)
+		when "greedy_best_first"
+			pathfind_greedy_best_first(start, goal)
+		when "a_star"
+			pathfind_a_star(start, goal)
 		else
 			raise "Unknown algorithm: #{algorithm}"
 		end
@@ -129,15 +133,21 @@ class Grid
 
 	private def cost(a, b)
 		ca = tile(*a)
-		ca = 9999 if ca == 0
+		ca = Float64::INFINITY if ca == 0
 		cb = tile(*b)
-		cb = 9999 if cb == 0
+		cb = Float64::INFINITY if cb == 0
 		cb - ca
 	end
 	
 	private def pathable(tile)
 		tile != 0
 	end
+
+	private def heuristic(a, b)
+		# Manhattan
+		(a[0] - b[0]).abs + (a[1] - b[1]).abs
+	end
+
 
 	private def pathfind_early_exit_breadth_first(start, goal)
 		frontier = [start]
@@ -182,11 +192,11 @@ class Grid
 
 	private def pathfind_dijkstra(start, goal)
 		frontier = PriorityQueue(Point).new
-		frontier << Element.new(start, 0)
+		frontier << {start, 0.0}
 		@came_from = {} of Point => Point?
 		@came_from[start] = nil
-		cost_so_far = {} of Point => Int32
-		cost_so_far[start] = 0
+		cost_so_far = {} of Point => Float64
+		cost_so_far[start] = 0.0
 
 		while !frontier.empty?
 			current = frontier.shift.value
@@ -197,7 +207,61 @@ class Grid
 				next if cost_so_far.has_key?(nxt) && new_cost >= cost_so_far[nxt]
 				log "next = #{nxt}"
 				cost_so_far[nxt] = new_cost
-				frontier << Element(Point).new(nxt, new_cost)
+				frontier << {nxt, new_cost}
+				@came_from[nxt] = current
+			end
+		end
+
+		log "came_from = #{@came_from}"
+		@came_from
+	end
+
+	private def pathfind_greedy_best_first(start, goal)
+		frontier = PriorityQueue(Point).new
+		frontier << {start, 0.0}
+		@came_from = {} of Point => Point?
+		@came_from[start] = nil
+		cost_so_far = {} of Point => Float64
+		cost_so_far[start] = 0.0
+
+		while !frontier.empty?
+			current = frontier.shift.value
+			break if current == goal
+			log "current = #{current}"
+			neighbors(*current).each do |nxt|
+				new_cost = cost_so_far[current] + cost(current, nxt)
+				next if cost_so_far.has_key?(nxt) && new_cost >= cost_so_far[nxt]
+				log "next = #{nxt}"
+				cost_so_far[nxt] = new_cost
+				priority = heuristic(goal, nxt).to_f64
+				frontier << {nxt, priority}
+				@came_from[nxt] = current
+			end
+		end
+
+		log "came_from = #{@came_from}"
+		@came_from
+	end
+
+	private def pathfind_a_star(start, goal)
+		frontier = PriorityQueue(Point).new
+		frontier << {start, 0.0}
+		@came_from = {} of Point => Point?
+		@came_from[start] = nil
+		cost_so_far = {} of Point => Float64
+		cost_so_far[start] = 0.0
+
+		while !frontier.empty?
+			current = frontier.shift.value
+			break if current == goal
+			log "current = #{current}"
+			neighbors(*current).each do |nxt|
+				new_cost = cost_so_far[current] + cost(current, nxt)
+				next if cost_so_far.has_key?(nxt) && new_cost >= cost_so_far[nxt]
+				log "next = #{nxt}"
+				cost_so_far[nxt] = new_cost
+				priority = new_cost + heuristic(goal, nxt)
+				frontier << {nxt, priority}
 				@came_from[nxt] = current
 			end
 		end

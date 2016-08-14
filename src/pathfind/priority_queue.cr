@@ -5,7 +5,7 @@ class Element(T)
 
 	property value, priority
 
-	def initialize(@value : T, @priority : Int32)
+	def initialize(@value : T, @priority : Float64)
 	end
 
 	def <=>(other)
@@ -20,6 +20,10 @@ class PriorityQueue(T)
 
 	def <<(element)
 		@elements << element
+	end
+
+	def <<(pair : Tuple(T, Float64))
+		@elements << Element(T).new(pair[0], pair[1])
 	end
 
 	def pop
