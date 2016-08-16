@@ -6,10 +6,10 @@ module Algorithms
 
 def heuristic(a, b)
 	# Manhattan
-	(a[0] - b[0]).abs + (a[1] - b[1]).abs
+	(a[0].to_i - b[0].to_i).abs + (a[1].to_i - b[1].to_i).abs - 1
 end
 
-def pathfind_early_exit_breadth_first(start, goal)
+def pathfind_early_exit_breadth_first(grid, start, goal)
 	frontier = [start]
 	came_from = {} of Point => Point?
 	came_from[start] = nil
@@ -30,7 +30,7 @@ def pathfind_early_exit_breadth_first(start, goal)
 	came_from
 end
 
-def pathfind_breadth_first(start, goal)
+def pathfind_breadth_first(grid, start, goal)
 	frontier = [start]
 	came_from = {} of Point => Point?
 	came_from[start] = nil
@@ -50,7 +50,7 @@ def pathfind_breadth_first(start, goal)
 	came_from
 end
 
-def pathfind_dijkstra(start, goal)
+def pathfind_dijkstra(grid, start, goal)
 	frontier = PriorityQueue(Point).new
 	frontier << {start, 0.0}
 	came_from = {} of Point => Point?
@@ -63,7 +63,7 @@ def pathfind_dijkstra(start, goal)
 		break if current == goal
 		log "current = #{current}"
 		neighbors(*current).each do |nxt|
-			new_cost = cost_so_far[current] + cost(current, nxt)
+			new_cost = cost_so_far[current] + grid.cost(current, nxt)
 			next if cost_so_far.has_key?(nxt) && new_cost >= cost_so_far[nxt]
 			log "next = #{nxt}"
 			cost_so_far[nxt] = new_cost
@@ -76,7 +76,7 @@ def pathfind_dijkstra(start, goal)
 	came_from
 end
 
-def pathfind_greedy_best_first(start, goal)
+def pathfind_greedy_best_first(grid, start, goal)
 	frontier = PriorityQueue(Point).new
 	frontier << {start, 0.0}
 	came_from = {} of Point => Point?
@@ -89,7 +89,7 @@ def pathfind_greedy_best_first(start, goal)
 		break if current == goal
 		log "current = #{current}"
 		neighbors(*current).each do |nxt|
-			new_cost = cost_so_far[current] + cost(current, nxt)
+			new_cost = cost_so_far[current] + grid.cost(current, nxt)
 			next if cost_so_far.has_key?(nxt) && new_cost >= cost_so_far[nxt]
 			log "next = #{nxt}"
 			cost_so_far[nxt] = new_cost
@@ -103,7 +103,7 @@ def pathfind_greedy_best_first(start, goal)
 	came_from
 end
 
-def pathfind_a_star(start, goal)
+def pathfind_a_star(grid, start, goal)
 	frontier = PriorityQueue(Point).new
 	frontier << {start, 0.0}
 	came_from = {} of Point => Point?
@@ -116,7 +116,7 @@ def pathfind_a_star(start, goal)
 		break if current == goal
 		log "current = #{current}"
 		neighbors(*current).each do |nxt|
-			new_cost = cost_so_far[current] + cost(current, nxt)
+			new_cost = cost_so_far[current] + grid.cost(current, nxt)
 			next if cost_so_far.has_key?(nxt) && new_cost >= cost_so_far[nxt]
 			log "next = #{nxt}"
 			cost_so_far[nxt] = new_cost

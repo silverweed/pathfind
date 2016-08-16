@@ -44,7 +44,9 @@ end
 def random_pathfind(grid)
 	$start, $goal = random_point(grid), random_point(grid)
 	grid.clear
-	if grid.rows == 15 && grid.cols == 15
+	if CONF[:uniform_weights]
+		grid.clear.fill(0, true)
+	elsif grid.rows == 15 && grid.cols == 15
 		grid.tiles = TILES.clone
 	else
 		grid.fill
@@ -70,6 +72,7 @@ algorithms = [
 	"greedy_best_first",
 	"a_star"
 ]
+$density : Float32 = 0.15_f32
 $algo : String = algorithms[-1]
 
 OptionParser.parse! do |parser|
@@ -80,6 +83,7 @@ OptionParser.parse! do |parser|
 	parser.on("-v", "--verbose", "Be verbose") { CONF[:verbose] = true }
 	parser.on("-A", "--noarrows", "Don't show arrows") { CONF[:show_arrows] = false }
 	parser.on("-w", "--weights", "Show weights") { CONF[:show_weights] = true }
+	parser.on("-u", "--uniform", "Use uniform weights") { CONF[:uniform_weights] = true }
 	parser.on("-l", "--list", "List available algorithms") {
 		puts "Algorithm index:"
 		algorithms.each_with_index { |a, i| puts "#{i}  #{a}" }
@@ -123,6 +127,26 @@ while window.open?
 				random_pathfind grid
 			when SF::Keyboard::A
 				$algo = algorithms[(algorithms.index($algo) as Int + 1) % algorithms.size]
+				algo_text.string = $algo
+				recalc_pathfind grid
+			when SF::Keyboard::Num0
+				$algo = algorithms[0] 
+				algo_text.string = $algo
+				recalc_pathfind grid
+			when SF::Keyboard::Num1
+				$algo = algorithms[1] 
+				algo_text.string = $algo
+				recalc_pathfind grid
+			when SF::Keyboard::Num2
+				$algo = algorithms[2] 
+				algo_text.string = $algo
+				recalc_pathfind grid
+			when SF::Keyboard::Num3
+				$algo = algorithms[3] 
+				algo_text.string = $algo
+				recalc_pathfind grid
+			when SF::Keyboard::Num4
+				$algo = algorithms[4] 
 				algo_text.string = $algo
 				recalc_pathfind grid
 			end

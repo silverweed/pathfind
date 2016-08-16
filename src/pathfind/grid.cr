@@ -25,10 +25,10 @@ class Grid
 		self
 	end
 
-	def fill(density = 0.15)
+	def fill(density = 0.15, uniform = false)
 		(@rows * @cols).times do
 			r = rand
-			@tiles << (r < density ? 0 : (r * 10).to_i)
+			@tiles << (r < density ? 0 : uniform ? 1 : (r + 1).to_i)
 		end
 	end
 
@@ -103,18 +103,26 @@ class Grid
 	def pathfind(start, goal, algorithm = "early_exit_breadth_first")
 		@came_from = case algorithm
 		when "breadth_first"
-			pathfind_breadth_first(start, goal)
+			pathfind_breadth_first(self, start, goal)
 		when "early_exit_breadth_first"
-			pathfind_early_exit_breadth_first(start, goal)
+			pathfind_early_exit_breadth_first(self, start, goal)
 		when "dijkstra"
-			pathfind_dijkstra(start, goal)
+			pathfind_dijkstra(self, start, goal)
 		when "greedy_best_first"
-			pathfind_greedy_best_first(start, goal)
+			pathfind_greedy_best_first(self, start, goal)
 		when "a_star"
-			pathfind_a_star(start, goal)
+			pathfind_a_star(self, start, goal)
 		else
 			raise "Unknown algorithm: #{algorithm}"
 		end
+	end
+
+	def cost(a, b)
+		ca = tile(*a)
+		return Float64::INFINITY if ca == 0
+		cb = tile(*b)
+		return Float64::INFINITY if cb == 0
+		[1, (cb - ca).abs].max
 	end
 
 	private def rotate_arrow(sprite, x, y)
@@ -136,14 +144,6 @@ class Grid
 
 	private def pathable(tile)
 		tile != 0
-	end
-
-	private def cost(a, b)
-		ca = tile(*a)
-		ca = Float64::INFINITY if ca == 0
-		cb = tile(*b)
-		cb = Float64::INFINITY if cb == 0
-		cb - ca
 	end
 end
 

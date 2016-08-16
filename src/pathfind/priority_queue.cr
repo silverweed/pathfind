@@ -6,6 +6,7 @@ class Element(T)
 	property value, priority
 
 	def initialize(@value : T, @priority : Float64)
+		puts "value: #{@value}, prio: #{@priority}"
 	end
 
 	def <=>(other)
@@ -33,9 +34,9 @@ class PriorityQueue(T)
 	end
 
 	def shift
-		el = @elements.shift
 		@elements.sort!
-		el
+		#puts "after sort: #{@elements}"
+		@elements.shift
 	end
 
 	def empty?
