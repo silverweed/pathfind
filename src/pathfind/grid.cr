@@ -14,10 +14,13 @@ class Grid
 	setter tiles
 	property path
 
+	@arrow : SF::Texture?
+
 	def initialize(@rows : UInt32, @cols : UInt32)
 		@tiles = [] of Int32
 		@path = [] of Point
 		@came_from = {} of Point => Point?
+		@arrow = SF::Texture.from_file("arrow.png") if CONF[:show_arrows]
 	end
 
 	def clear
@@ -43,12 +46,14 @@ class Grid
 			"\ny * cols + x = #{y * @cols + x} / #{@tiles.size}"
 	end
 
-	def draw(window, states)
+	include SF::Drawable
+
+	def draw(window, states : SF::RenderStates)
 		rect = SF::RectangleShape.new(SF.vector2f(TILE_SIZE, TILE_SIZE))
 		sprite = SF::Sprite.new
 		if CONF[:show_arrows]
 			sprite.origin = {TILE_SIZE.to_f32/2, TILE_SIZE.to_f32/2}
-			sprite.texture = $arrow
+			sprite.texture = @arrow.not_nil!
 			sprite.texture_rect = SF.int_rect(0, 0, ARROW_SCALE[0], ARROW_SCALE[1])
 			sprite.scale = SF.vector2f(TILE_SIZE.to_f32 / ARROW_SCALE[0], TILE_SIZE.to_f32 / ARROW_SCALE[1])
 		end
@@ -128,18 +133,19 @@ class Grid
 	private def rotate_arrow(sprite, x, y)
 		return false unless @came_from.has_key?({x, y})
 		cf = @came_from[{x, y}] 
-		return false if cf == nil 
-		cf = cf as Point
-		if cf[0] < x
-			sprite.rotation = 270
-		elsif cf[1] > y
-			sprite.rotation = 180
-		elsif cf[0] > x
-			sprite.rotation = 90
-		else
-			sprite.rotation = 0
+		if cf.is_a? Point
+			if cf[0] < x
+				sprite.rotation = 270
+			elsif cf[1] > y
+				sprite.rotation = 180
+			elsif cf[0] > x
+				sprite.rotation = 90
+			else
+				sprite.rotation = 0
+			end
+			return true
 		end
-		true
+		return false
 	end
 
 	private def pathable(tile)
